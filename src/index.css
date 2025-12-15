@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-brandDark text-white;
+}
+
+/* Optional: Add a standard font like Inter from Google fonts in your index.html head */
