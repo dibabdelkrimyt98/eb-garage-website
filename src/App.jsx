@@ -19,6 +19,9 @@ function App() {
         <Route path="/services" element={<ServicesPage />} /> 
         <Route path="/workshop" element={<WorkshopPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
+
+      
+
       </Routes>
     </BrowserRouter>
   );
