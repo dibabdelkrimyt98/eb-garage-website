@@ -1,7 +1,6 @@
 // src/components/WorkshopPresentation.jsx
 import React from 'react';
 import { FaAward, FaLightbulb, FaShieldAlt, FaTools, FaUserCheck } from 'react-icons/fa';
-
 // Define data for workshop features
 const workshopFeatures = [
     {
@@ -51,7 +50,7 @@ const WorkshopPresentation = () => {
                             [Main Workshop Interior Photo Placeholder]
                         </div>
                         {/* Optional: Use a specific background image here if you have one, e.g., `/assets/main-workshop.png` */}
-                        <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: `url(/assets/main-workshop.png)` }}></div>
+                        <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: "url(${workshop})"}}></div>
                     </div>
                 </div>
 

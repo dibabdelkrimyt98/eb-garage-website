@@ -1,8 +1,9 @@
 import React from 'react';
 import { FaCar, FaScroll, FaShieldAlt } from 'react-icons/fa';
-import ppfCar from '../assets/ppf-car.jpg';
-import tintCar from '../assets/tint-car.jpg';
-import wrapCar from '../assets/wrap-car.jpg';
+import ppfCar from '../assets/noire.jpg';
+import wrapCar from '../assets/range.jpg';
+import tintCar from '../assets/star.jpg';
+import workshop from '../assets/workshop.jpg';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import ServiceCard from '../components/ServiceCard';
@@ -90,7 +91,7 @@ function HomePage() {
       <section className="flex flex-col md:flex-row bg-brandGray">
         <div className="md:w-1/2 h-[400px] md:h-auto relative min-h-[500px]">
           <img 
-            src="/assets/workshop.png" 
+            src={workshop}
             alt="EB Garage Workshop" 
             className="w-full h-full object-cover absolute inset-0"
           />
