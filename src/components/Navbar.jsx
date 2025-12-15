@@ -2,11 +2,10 @@
 import React from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa'; // For mobile menu
 import logo from '../assets/logo_official.png';
-
 const Navbar = () => {
   // Placeholder links for routing (replace '#' with actual paths)
   const navLinks = [
-    { name: 'Services', href: '/services' },
+    { name: 'Services', href: '../pages/ServicesPage.jsx'},
     { name: 'Portfolio', href: '/portfolio' },
     { name: 'Atelier', href: '/workshop' },
     { name: 'Contact', href: '/contact' }

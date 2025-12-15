@@ -19,11 +19,6 @@ function App() {
         <Route path="/services" element={<ServicesPage />} /> 
         <Route path="/workshop" element={<WorkshopPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
-
-        {/* Add other pages (Portfolio, Workshop) as needed */}
-        {/* <Route path="/portfolio" element={<PortfolioPage />} /> */}
-        {/* <Route path="/workshop" element={<WorkshopPage />} /> */}
-
       </Routes>
     </BrowserRouter>
   );

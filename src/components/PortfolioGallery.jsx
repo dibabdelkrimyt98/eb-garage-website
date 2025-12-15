@@ -83,6 +83,7 @@ const PortfolioGallery = () => {
           ))}
         </div>
         
+        
         {/* Load More CTA */}
         <div className="text-center mt-16">
             <button className="border-2 border-brandRed hover:bg-brandRed text-brandRed hover:text-white font-bold px-8 py-3 rounded uppercase transition-all">
