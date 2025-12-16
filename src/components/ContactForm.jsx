@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 
 const ContactForm = () => {
-    // State to manage form data (optional, but good practice for React forms)
+    // État pour gérer les données du formulaire
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         service: '',
         message: ''
     });
+
+    // État pour l'interactivité (chargement et succès)
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
     
-    // Function to handle changes in input fields
+    // Fonction pour gérer les changements dans les champs
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -17,30 +21,44 @@ const ContactForm = () => {
         });
     };
 
-    // Function to handle form submission
+    // Fonction pour gérer la soumission du formulaire
     const handleSubmit = (e) => {
         e.preventDefault();
+        setIsSubmitting(true); // Active l'état de chargement
         
-        // --- TODO: Add actual form submission logic here ---
-        // e.g., Axios post request to an API endpoint
-        console.log('Form Submitted:', formData);
+        // Simulation d'un appel API (ex: envoi vers un backend)
+        setTimeout(() => {
+            console.log('Formulaire Soumis :', formData);
 
-        alert('Thank you for your inquiry! We will be in touch shortly.');
-        
-        // Reset form after submission
-        setFormData({ name: '', email: '', service: '', message: '' });
+            // Afficher le message de succès dans l'interface
+            setSuccessMessage('Merci pour votre demande ! Nous vous contacterons très bientôt.');
+            
+            // Réinitialiser le formulaire
+            setFormData({ name: '', email: '', service: '', message: '' });
+            setIsSubmitting(false); // Désactive l'état de chargement
+
+            // Effacer le message de succès après 5 secondes
+            setTimeout(() => setSuccessMessage(''), 5000);
+        }, 1500); // Délai de 1.5 secondes pour l'effet "interactif"
     };
 
     return (
         <div className="bg-brandGray p-8 md:p-12 rounded-xl shadow-2xl">
-            <h3 className="text-3xl font-bold text-white mb-8 uppercase">Request a Quote</h3>
+            <h3 className="text-3xl font-bold text-white mb-8 uppercase">Demander un Devis</h3>
             
+            {/* Message de succès interactif */}
+            {successMessage && (
+                <div className="mb-6 p-4 bg-green-800/50 border border-green-500 text-green-100 rounded animate-pulse">
+                    {successMessage}
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
                 
-                {/* Full Name Input */}
+                {/* Champ Nom Complet */}
                 <div>
                     <label htmlFor="name" className="block text-sm text-brandLightGray mb-2 font-medium">
-                        Full Name <span className="text-brandRed">*</span>
+                        Nom Complet <span className="text-brandRed">*</span>
                     </label>
                     <input 
                         type="text" 
@@ -50,14 +68,14 @@ const ContactForm = () => {
                         onChange={handleChange}
                         required
                         className="w-full bg-brandDark border border-zinc-800 rounded p-4 focus:border-brandRed focus:ring-1 focus:ring-brandRed outline-none text-white transition-colors placeholder-zinc-500"
-                        placeholder="John Doe"
+                        placeholder="Jean Dupont"
                     />
                 </div>
 
-                {/* Email Input */}
+                {/* Champ Email */}
                 <div>
                     <label htmlFor="email" className="block text-sm text-brandLightGray mb-2 font-medium">
-                        Email Address <span className="text-brandRed">*</span>
+                        Adresse Email <span className="text-brandRed">*</span>
                     </label>
                     <input 
                         type="email" 
@@ -67,14 +85,14 @@ const ContactForm = () => {
                         onChange={handleChange}
                         required
                         className="w-full bg-brandDark border border-zinc-800 rounded p-4 focus:border-brandRed focus:ring-1 focus:ring-brandRed outline-none text-white transition-colors placeholder-zinc-500"
-                        placeholder="john.doe@example.com"
+                        placeholder="jean.dupont@exemple.com"
                     />
                 </div>
 
-                {/* Service Dropdown */}
+                {/* Menu Déroulant Service */}
                 <div>
                     <label htmlFor="service" className="block text-sm text-brandLightGray mb-2 font-medium">
-                        Interested Service
+                        Service Souhaité
                     </label>
                     <select
                         id="service"
@@ -83,19 +101,19 @@ const ContactForm = () => {
                         onChange={handleChange}
                         className="w-full bg-brandDark border border-zinc-800 rounded p-4 focus:border-brandRed focus:ring-1 focus:ring-brandRed outline-none text-white transition-colors appearance-none cursor-pointer"
                     >
-                        <option value="">-- Select a Service --</option>
-                        <option value="window_tinting">Automotive Window Tinting</option>
-                        <option value="ppf_install">PPF (Paint Protection Film) Install</option>
-                        <option value="wrapping">Vehicle Wrapping</option>
-                        <option value="multiple">Multiple Services</option>
-                        <option value="general_inquiry">General Inquiry</option>
+                        <option value="">-- Sélectionnez un service --</option>
+                        <option value="window_tinting">Teintage de Vitres</option>
+                        <option value="ppf_install">Installation PPF (Protection Peinture)</option>
+                        <option value="wrapping">Wrapping de Véhicule</option>
+                        <option value="multiple">Services Multiples</option>
+                        <option value="general_inquiry">Question Générale</option>
                     </select>
                 </div>
                 
-                {/* Message Textarea */}
+                {/* Zone de Texte Message */}
                 <div>
                     <label htmlFor="message" className="block text-sm text-brandLightGray mb-2 font-medium">
-                        Your Message / Vehicle Details
+                        Votre Message / Détails du Véhicule
                     </label>
                     <textarea 
                         id="message"
@@ -104,16 +122,21 @@ const ContactForm = () => {
                         value={formData.message}
                         onChange={handleChange}
                         className="w-full bg-brandDark border border-zinc-800 rounded p-4 focus:border-brandRed focus:ring-1 focus:ring-brandRed outline-none text-white transition-colors placeholder-zinc-500"
-                        placeholder="Tell us about your car (Make, Model, Year) and the details of the work you need done."
+                        placeholder="Parlez-nous de votre voiture (Marque, Modèle, Année) et des détails du travail souhaité."
                     ></textarea>
                 </div>
 
-                {/* Submit Button */}
+                {/* Bouton de Soumission Interactif */}
                 <button 
                     type="submit" 
-                    className="w-full bg-brandRed hover:bg-red-700 text-white font-bold py-4 rounded uppercase tracking-wider transition-all duration-300 shadow-lg hover:shadow-xl"
+                    disabled={isSubmitting} // Désactive le bouton pendant l'envoi
+                    className={`w-full font-bold py-4 rounded uppercase tracking-wider transition-all duration-300 shadow-lg hover:shadow-xl ${
+                        isSubmitting 
+                        ? 'bg-zinc-600 text-zinc-300 cursor-not-allowed' 
+                        : 'bg-brandRed hover:bg-red-700 text-white'
+                    }`}
                 >
-                    Send Request
+                    {isSubmitting ? 'Envoi en cours...' : 'Envoyer la Demande'}
                 </button>
             </form>
         </div>

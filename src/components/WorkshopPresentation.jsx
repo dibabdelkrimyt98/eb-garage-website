@@ -1,31 +1,33 @@
 // src/components/WorkshopPresentation.jsx
 import React from 'react';
 import { FaAward, FaLightbulb, FaShieldAlt, FaTools, FaUserCheck } from 'react-icons/fa';
-// Define data for workshop features
+import workshop from '../assets/workshop.jpg'; // Import for image placeholder
+
+// Définition des données des caractéristiques de l'atelier traduites
 const workshopFeatures = [
     {
-        title: "State-of-the-Art Facility",
-        description: "Our workshop is equipped with the latest technology and tools, designed for precision and efficiency in every service we perform.",
+        title: "Installations à la Pointe de la Technologie",
+        description: "Notre atelier est équipé des derniers outils et technologies, conçus pour la précision et l'efficacité dans chaque service que nous effectuons.",
         icon: FaTools
     },
     {
-        title: "Climate-Controlled Environment",
-        description: "Dust-free and temperature-regulated bays ensure optimal conditions for film adhesion, preventing imperfections and ensuring a flawless finish.",
-        icon: FaLightbulb // Represents controlled environment/lighting
+        title: "Environnement à Température Contrôlée",
+        description: "Des baies sans poussière et à température régulée assurent des conditions optimales pour l'adhérence des films, prévenant les imperfections et garantissant une finition impeccable.",
+        icon: FaLightbulb // Représente l'environnement contrôlé/l'éclairage
     },
     {
-        title: "Certified & Experienced Technicians",
-        description: "Our team consists of highly trained and certified professionals, passionate about automotive perfection and dedicated to meticulous craftsmanship.",
+        title: "Techniciens Certifiés et Expérimentés",
+        description: "Notre équipe est composée de professionnels hautement qualifiés et certifiés, passionnés par la perfection automobile et dédiés à un artisanat méticuleux.",
         icon: FaUserCheck
     },
     {
-        title: "Premium Product Handling",
-        description: "Every roll of film and vinyl is stored and handled with utmost care in a pristine environment to maintain product integrity and performance.",
-        icon: FaShieldAlt // Represents protection/care
+        title: "Manipulation de Produits Premium",
+        description: "Chaque rouleau de film et de vinyle est stocké et manipulé avec le plus grand soin dans un environnement immaculé pour maintenir l'intégrité et la performance du produit.",
+        icon: FaShieldAlt // Représente la protection/le soin
     },
     {
-        title: "Quality Assurance",
-        description: "Rigorous multi-point inspections are conducted after every service to ensure that our high standards for quality and customer satisfaction are consistently met.",
+        title: "Assurance Qualité Rigoureuse",
+        description: "Des inspections rigoureuses à plusieurs points sont menées après chaque service pour garantir que nos normes élevées de qualité et de satisfaction client sont toujours respectées.",
         icon: FaAward
     }
 ];
@@ -36,29 +38,33 @@ const WorkshopPresentation = () => {
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 
                 <h2 className="text-4xl md:text-5xl font-extrabold text-white uppercase text-center mb-16">
-                    Our Cutting-Edge Workshop
+                    Notre Atelier de Pointe
                 </h2>
 
-                {/* Main Workshop Overview */}
+                {/* Vue d'ensemble de l'Atelier */}
                 <div className="mb-20 text-center max-w-4xl mx-auto">
                     <p className="text-xl text-brandLightGray leading-relaxed mb-6">
-                        At EB GARAGE, our commitment to excellence begins with our environment. Our facility is meticulously designed to provide the ideal conditions for superior automotive care. We combine advanced technology with a pristine setting to ensure every detail is perfected.
+                        Chez EB GARAGE, notre engagement envers l'excellence commence par notre environnement. Nos installations sont méticuleusement conçues pour fournir les conditions idéales pour un entretien automobile supérieur. Nous combinons technologie avancée et cadre immaculé pour garantir que chaque détail est perfectionné.
                     </p>
-                    {/* Placeholder for a main workshop photo */}
+                    {/* Placeholder pour une photo principale de l'atelier */}
                     <div className="w-full h-96 bg-brandGray rounded-xl shadow-lg flex items-center justify-center relative overflow-hidden mt-10">
-                        <div className='text-brandLightGray text-lg font-bold'>
-                            [Main Workshop Interior Photo Placeholder]
+                        <div className='text-brandLightGray text-lg font-bold z-10'>
+                            [Espace Réservé Photo Intérieur de l'Atelier Principal]
                         </div>
-                        {/* Optional: Use a specific background image here if you have one, e.g., `/assets/main-workshop.png` */}
-                        <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: "url(${workshop})"}}></div>
+                        {/* Utilisation de l'image importée pour le fond semi-transparent */}
+                        <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: `url(${workshop})` }}></div>
                     </div>
                 </div>
 
 
-                {/* Features Grid */}
+                {/* Grille des Caractéristiques */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {workshopFeatures.map((feature, index) => (
-                        <div key={index} className="bg-brandGray rounded-xl p-8 shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                        <div 
+                            key={index} 
+                            // Ajout d'une interactivité simple au survol
+                            className="bg-brandGray rounded-xl p-8 shadow-lg text-center transform hover:scale-105 transition-transform duration-300"
+                        >
                             <feature.icon className="text-brandRed text-5xl mx-auto mb-6" />
                             <h3 className="text-2xl font-bold text-white mb-4 uppercase">{feature.title}</h3>
                             <p className="text-brandLightGray leading-relaxed">{feature.description}</p>
@@ -66,14 +72,14 @@ const WorkshopPresentation = () => {
                     ))}
                 </div>
 
-                {/* Call to Action for Booking/Visiting */}
+                {/* Appel à l'Action pour Réservation/Visite */}
                 <div className="text-center mt-20">
                     <p className="text-xl text-brandLightGray mb-6">
-                        Experience the precision and care of EB GARAGE for yourself.
+                        Découvrez par vous-même la précision et le soin de EB GARAGE.
                     </p>
                     <a href="/contact">
                         <button className="bg-brandRed hover:bg-red-700 text-white text-lg uppercase font-bold px-10 py-4 rounded shadow-2xl transition-all duration-300">
-                            Book Your Service
+                            Réservez Votre Service
                         </button>
                     </a>
                 </div>

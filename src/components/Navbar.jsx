@@ -9,7 +9,8 @@ const Navbar = () => {
     { name: 'Services', href: '/services' },
     { name: 'Portfolio', href: '/portfolio' },
     { name: 'Atelier', href: '/workshop' },
-    { name: 'Contact', href: '/contact' }
+    { name: 'Contact', href: '/contact' },
+    { name : 'Devis', href: '/devis'}
   ];
 
   const [isOpen, setIsOpen] = React.useState(false);
@@ -34,7 +35,7 @@ const Navbar = () => {
 
       {/* CTA Button - Desktop */}
       <div className='hidden md:block'>
-        <a href="/contact">
+        <a href="/devis">
             <button className="bg-brandRed hover:bg-red-700 text-white text-sm uppercase font-bold px-6 py-3 rounded shadow-md transition-all duration-200">
             Obtenez un devis
             </button>

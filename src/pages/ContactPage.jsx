@@ -33,7 +33,7 @@ function ContactPage() {
               
               <div className="flex items-center space-x-4 pt-4">
                 <FaPhoneAlt className="text-brandRed text-xl" />
-                <span className="text-white">027 333 7930</span>
+                <span className="text-white">0558 00 40 13</span>
               </div>
               
               <div className="flex items-center space-x-4">
@@ -43,7 +43,7 @@ function ContactPage() {
               
               <div className="flex items-start space-x-4">
                 <FaMapMarkerAlt className="text-brandRed text-xl mt-1" />
-                <span className="text-white">123 Steemweor, Bashin Driv, None Yaming, Cach</span>
+                <span className="text-white">Cité Ben Mokadem (Sidi Abdelkader-Cité Ramoul en face la mosquée), Blida, Algeria</span>
               </div>
             </div>
             

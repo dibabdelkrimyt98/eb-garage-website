@@ -23,7 +23,7 @@ const ProjectCard = ({ imageSrc, title, service, link = "#" }) => {
           {title}
         </h3>
         <p className="text-sm text-brandLightGray">
-          Service: {service}
+          Service : {service}
         </p>
       </div>
     </a>
