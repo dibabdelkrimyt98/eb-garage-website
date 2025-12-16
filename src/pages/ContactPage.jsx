@@ -49,7 +49,14 @@ function ContactPage() {
             
             {/* Map Placeholder */}
             <div className="h-48 bg-zinc-700 rounded-lg flex items-center justify-center text-brandLightGray">
-                [Espace Réservé pour la Carte]
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3206.675484618136!2d2.8385065999999997!3d36.5136949!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x128f0ba6ff767039%3A0x39e8d490cd6184b2!2sEB%20Garage!5e0!3m2!1sen!2sdz!4v1765895719969!5m2!1sen!2sdz" 
+                        width="100%" 
+                        height="100%" 
+                        style={{ border: 0 }}
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
             </div>
           </div>
           
