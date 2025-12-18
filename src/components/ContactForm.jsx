@@ -1,142 +1,114 @@
-import React, { useState } from 'react';
+import emailjs from '@emailjs/browser';
+import React, { useRef, useState } from 'react';
 
 const ContactForm = () => {
-    // État pour gérer les données du formulaire
+    const form = useRef();
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        service: '',
+        user_name: '',
+        user_email: '',
+        subject: '',
         message: ''
     });
 
-    // État pour l'interactivité (chargement et succès)
+    const [status, setStatus] = useState({ type: '', message: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [successMessage, setSuccessMessage] = useState('');
-    
-    // Fonction pour gérer les changements dans les champs
+
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Fonction pour gérer la soumission du formulaire
-    const handleSubmit = (e) => {
+    const sendEmail = (e) => {
         e.preventDefault();
-        setIsSubmitting(true); // Active l'état de chargement
-        
-        // Simulation d'un appel API (ex: envoi vers un backend)
-        setTimeout(() => {
-            console.log('Formulaire Soumis :', formData);
+        setIsSubmitting(true);
 
-            // Afficher le message de succès dans l'interface
-            setSuccessMessage('Merci pour votre demande ! Nous vous contacterons très bientôt.');
-            
-            // Réinitialiser le formulaire
-            setFormData({ name: '', email: '', service: '', message: '' });
-            setIsSubmitting(false); // Désactive l'état de chargement
+        // Remplacez ces IDs par vos propres IDs EmailJS
+        const SERVICE_ID = "service_tm4clgk";
+        const TEMPLATE_ID = "template_bu3lggo";
+        const PUBLIC_KEY = "HWo31ByS0ctsGNZvt";
 
-            // Effacer le message de succès après 5 secondes
-            setTimeout(() => setSuccessMessage(''), 5000);
-        }, 1500); // Délai de 1.5 secondes pour l'effet "interactif"
+        emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY)
+            .then(() => {
+                setStatus({ 
+                    type: 'success', 
+                    message: 'Message envoyé avec succès ! Nous vous répondrons sous 24h.' 
+                });
+                setFormData({ user_name: '', user_email: '', subject: '', message: '' });
+            })
+            .catch((error) => {
+                setStatus({ 
+                    type: 'error', 
+                    message: 'Erreur lors de l\'envoi. Veuillez réessayer.' 
+                });
+                console.error('EmailJS Error:', error);
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+                setTimeout(() => setStatus({ type: '', message: '' }), 5000);
+            });
     };
 
     return (
-        <div className="bg-brandGray p-8 md:p-12 rounded-xl shadow-2xl">
-            <h3 className="text-3xl font-bold text-white mb-8 uppercase">Demander un Devis</h3>
+        <div className="bg-zinc-900/50 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-zinc-800 shadow-2xl">
+            <h3 className="text-3xl font-bold text-white mb-2 uppercase tracking-tight">Envoyez un message</h3>
+            <p className="text-zinc-400 mb-8">Une question ? Un projet spécifique ? Écrivez-nous.</p>
             
-            {/* Message de succès interactif */}
-            {successMessage && (
-                <div className="mb-6 p-4 bg-green-800/50 border border-green-500 text-green-100 rounded animate-pulse">
-                    {successMessage}
+            {status.message && (
+                <div className={`mb-6 p-4 rounded-lg border ${
+                    status.type === 'success' 
+                    ? 'bg-green-500/10 border-green-500 text-green-400' 
+                    : 'bg-red-500/10 border-red-500 text-red-400'
+                }`}>
+                    {status.message}
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                
-                {/* Champ Nom Complet */}
-                <div>
-                    <label htmlFor="name" className="block text-sm text-brandLightGray mb-2 font-medium">
-                        Nom Complet <span className="text-brandRed">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full bg-brandDark border border-zinc-800 rounded p-4 focus:border-brandRed focus:ring-1 focus:ring-brandRed outline-none text-white transition-colors placeholder-zinc-500"
-                        placeholder="Jean Dupont"
-                    />
+            <form ref={form} onSubmit={sendEmail} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2 ml-1">Nom Complet</label>
+                        <input 
+                            type="text" name="user_name" required
+                            value={formData.user_name} onChange={handleChange}
+                            className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 focus:border-brandRed outline-none text-white transition-all"
+                            placeholder="Ex: Karim Ben"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2 ml-1">Email</label>
+                        <input 
+                            type="email" name="user_email" required
+                            value={formData.user_email} onChange={handleChange}
+                            className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 focus:border-brandRed outline-none text-white transition-all"
+                            placeholder="votre@email.com"
+                        />
+                    </div>
                 </div>
 
-                {/* Champ Email */}
                 <div>
-                    <label htmlFor="email" className="block text-sm text-brandLightGray mb-2 font-medium">
-                        Adresse Email <span className="text-brandRed">*</span>
-                    </label>
+                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2 ml-1">Sujet</label>
                     <input 
-                        type="email" 
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full bg-brandDark border border-zinc-800 rounded p-4 focus:border-brandRed focus:ring-1 focus:ring-brandRed outline-none text-white transition-colors placeholder-zinc-500"
-                        placeholder="jean.dupont@exemple.com"
+                        type="text" name="subject" required
+                        value={formData.subject} onChange={handleChange}
+                        className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 focus:border-brandRed outline-none text-white transition-all"
+                        placeholder="Ex: Question sur le PPF"
                     />
                 </div>
-
-                {/* Menu Déroulant Service */}
-                <div>
-                    <label htmlFor="service" className="block text-sm text-brandLightGray mb-2 font-medium">
-                        Service Souhaité
-                    </label>
-                    <select
-                        id="service"
-                        name="service"
-                        value={formData.service}
-                        onChange={handleChange}
-                        className="w-full bg-brandDark border border-zinc-800 rounded p-4 focus:border-brandRed focus:ring-1 focus:ring-brandRed outline-none text-white transition-colors appearance-none cursor-pointer"
-                    >
-                        <option value="">-- Sélectionnez un service --</option>
-                        <option value="window_tinting">Teintage de Vitres</option>
-                        <option value="ppf_install">Installation PPF (Protection Peinture)</option>
-                        <option value="wrapping">Wrapping de Véhicule</option>
-                        <option value="multiple">Services Multiples</option>
-                        <option value="general_inquiry">Question Générale</option>
-                    </select>
-                </div>
                 
-                {/* Zone de Texte Message */}
                 <div>
-                    <label htmlFor="message" className="block text-sm text-brandLightGray mb-2 font-medium">
-                        Votre Message / Détails du Véhicule
-                    </label>
+                    <label className="block text-xs font-bold text-zinc-500 uppercase mb-2 ml-1">Message</label>
                     <textarea 
-                        id="message"
-                        name="message"
-                        rows="5" 
-                        value={formData.message}
-                        onChange={handleChange}
-                        className="w-full bg-brandDark border border-zinc-800 rounded p-4 focus:border-brandRed focus:ring-1 focus:ring-brandRed outline-none text-white transition-colors placeholder-zinc-500"
-                        placeholder="Parlez-nous de votre voiture (Marque, Modèle, Année) et des détails du travail souhaité."
+                        name="message" rows="4" required
+                        value={formData.message} onChange={handleChange}
+                        className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 focus:border-brandRed outline-none text-white transition-all resize-none"
+                        placeholder="Comment pouvons-nous vous aider ?"
                     ></textarea>
                 </div>
 
-                {/* Bouton de Soumission Interactif */}
                 <button 
-                    type="submit" 
-                    disabled={isSubmitting} // Désactive le bouton pendant l'envoi
-                    className={`w-full font-bold py-4 rounded uppercase tracking-wider transition-all duration-300 shadow-lg hover:shadow-xl ${
-                        isSubmitting 
-                        ? 'bg-zinc-600 text-zinc-300 cursor-not-allowed' 
-                        : 'bg-brandRed hover:bg-red-700 text-white'
-                    }`}
+                    type="submit" disabled={isSubmitting}
+                    className="w-full bg-brandRed hover:bg-red-700 text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all shadow-lg shadow-brandRed/20 disabled:opacity-50"
                 >
-                    {isSubmitting ? 'Envoi en cours...' : 'Envoyer la Demande'}
+                    {isSubmitting ? 'Chargement...' : 'Envoyer le message'}
                 </button>
             </form>
         </div>
