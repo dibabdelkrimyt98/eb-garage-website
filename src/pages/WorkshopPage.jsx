@@ -62,7 +62,7 @@ function WorkshopPage() {
                         Découvrez nos installations en action.
                     </h3>
                     {/* Placeholder for a gallery link if you create one */}
-                    <a href="/gallery"> 
+                    <a href="/portfolio"> 
                         <button className="bg-brandRed hover:bg-red-700 text-white font-bold px-8 py-3 rounded uppercase transition-colors">
                             Voir Notre Galerie
                         </button>

@@ -70,7 +70,7 @@ const ContactForm = () => {
                             type="text" name="user_name" required
                             value={formData.user_name} onChange={handleChange}
                             className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 focus:border-brandRed outline-none text-white transition-all"
-                            placeholder="Ex: Karim Ben"
+                            placeholder="Nom Complet"
                         />
                     </div>
                     <div>
@@ -79,7 +79,7 @@ const ContactForm = () => {
                             type="email" name="user_email" required
                             value={formData.user_email} onChange={handleChange}
                             className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 focus:border-brandRed outline-none text-white transition-all"
-                            placeholder="votre@email.com"
+                            placeholder="Email"
                         />
                     </div>
                 </div>
@@ -90,7 +90,7 @@ const ContactForm = () => {
                         type="text" name="subject" required
                         value={formData.subject} onChange={handleChange}
                         className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl p-4 focus:border-brandRed outline-none text-white transition-all"
-                        placeholder="Ex: Question sur le PPF"
+                        placeholder="Sujet"
                     />
                 </div>
                 

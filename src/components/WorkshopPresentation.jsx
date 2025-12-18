@@ -77,7 +77,7 @@ const WorkshopPresentation = () => {
                     <p className="text-xl text-brandLightGray mb-6">
                         Découvrez par vous-même la précision et le soin de EB GARAGE.
                     </p>
-                    <a href="/contact">
+                    <a href="/devis">
                         <button className="bg-brandRed hover:bg-red-700 text-white text-lg uppercase font-bold px-10 py-4 rounded shadow-2xl transition-all duration-300">
                             Réservez Votre Service
                         </button>

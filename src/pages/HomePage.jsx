@@ -61,7 +61,7 @@ function HomePage() {
               
               {/* LIEN 1: Book Your Service -> /contact */}
               <Link 
-                to="/contact" 
+                to="/devis" 
                 className="bg-brandRed hover:bg-red-700 text-white text-sm uppercase font-bold px-8 py-4 rounded shadow-md transition-all text-center"
               >
                 Réserver Votre Service
