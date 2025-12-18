@@ -60,7 +60,7 @@ function ServicesPage() {
                     <h3 className="text-3xl font-bold text-white uppercase mb-4 md:mb-0">
                         Prêt à obtenir une estimation détaillée ?
                     </h3>
-                    <a href="/contact">
+                    <a href="/devis">
                         <button className="bg-brandRed hover:bg-red-700 text-white font-bold px-8 py-3 rounded uppercase transition-colors">
                             Demander un Devis Personnalisé
                         </button>
