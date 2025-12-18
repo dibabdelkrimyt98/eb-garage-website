@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Autoriser tout le monde à créer (create) des devis
+    // Mais interdire la lecture (read), la mise à jour ou la suppression pour la sécurité
+    match /quotes/{document=**} {
+      allow create: if true;
+      allow read, update, delete: if false; 
+    }
+  }
+}

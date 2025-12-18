@@ -1,5 +1,9 @@
 // src/components/QuoteForm.jsx
 import React, { useState } from 'react';
+// --- IMPORTS NÉCESSAIRES POUR LE BACKEND ---
+import emailjs from '@emailjs/browser';
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from '../firebase'; // Assurez-vous que votre fichier firebase.js est bien configuré
 
 // Étapes de base du formulaire
 const TOTAL_STEPS = 3;
@@ -7,6 +11,7 @@ const TOTAL_STEPS = 3;
 const QuoteForm = () => {
     // État pour gérer l'étape actuelle (1, 2, 3)
     const [step, setStep] = useState(1);
+    
     // État pour stocker toutes les données du devis
     const [formData, setFormData] = useState({
         // Étape 1: Véhicule
@@ -22,8 +27,11 @@ const QuoteForm = () => {
         phone: '', // Téléphone (facultatif)
         notes: '' // Notes supplémentaires
     });
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submissionSuccess, setSubmissionSuccess] = useState(false);
+    // Nouvel état pour gérer les erreurs d'envoi
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Mettre à jour les données du formulaire
     const handleChange = (e) => {
@@ -49,7 +57,7 @@ const QuoteForm = () => {
 
     // Fonctions de navigation entre les étapes
     const nextStep = () => {
-        // Validation simple avant de passer à l'étape suivante (Peut être plus complexe)
+        // Validation simple avant de passer à l'étape suivante
         if (step === 1 && (!formData.make || !formData.model || !formData.year)) {
             alert("Veuillez remplir les informations du véhicule.");
             return;
@@ -66,23 +74,52 @@ const QuoteForm = () => {
         setStep(prev => Math.max(prev - 1, 1));
     };
 
-    // Gérer la soumission finale
-    const handleSubmit = (e) => {
+    // --- GÉRER LA SOUMISSION FINALE (LOGIQUE AJOUTÉE) ---
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setErrorMessage(''); // Réinitialiser les erreurs
         
-        // --- LOGIQUE D'ENVOI AU GARAGE (API, Email, etc.) ---
-        console.log('Devis Final Soumis:', formData);
-        
-        // Simuler l'envoi
-        setTimeout(() => {
-            setIsSubmitting(false);
+        try {
+            // 1. Enregistrer dans Firebase Firestore
+            await addDoc(collection(db, "quotes"), {
+                ...formData,
+                createdAt: serverTimestamp(),
+                status: "nouveau" // Pour le tri dans votre admin
+            });
+
+            // 2. Préparer les paramètres pour l'email
+            const templateParams = {
+                to_name: "Admin Garage", // Le nom qui apparaîtra dans l'email
+                from_name: formData.name,
+                from_email: formData.email,
+                phone: formData.phone || "Non renseigné",
+                vehicle_info: `${formData.make} ${formData.model} (${formData.year})`,
+                service_type: formData.serviceType,
+                service_details: formData.serviceDetails.join(", "), // Convertir le tableau en texte lisible
+                message: formData.notes
+            };
+
+            // 3. Envoyer la notification via EmailJS
+            await emailjs.send(
+                'service_tm4clgk',   // <-- REMPLACEZ CECI (Service ID EmailJS)
+                'template_okc7zya',  // <-- REMPLACEZ CECI (Template ID EmailJS)
+                templateParams,
+                'HWo31ByS0ctsGNZvt'    // <-- REMPLACEZ CECI (Public Key EmailJS)
+            );
+
+            // 4. Succès
             setSubmissionSuccess(true);
-            // Ici, vous enverriez les données à votre backend
-        }, 2000);
+
+        } catch (error) {
+            console.error("Erreur d'envoi:", error);
+            setErrorMessage("Une erreur est survenue lors de l'envoi. Veuillez vérifier votre connexion ou nous appeler directement.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    // Affichage des étapes individuelles
+    // Affichage des étapes individuelles (INCHANGÉ)
     const renderStep = () => {
         switch (step) {
             case 1:
@@ -109,7 +146,7 @@ const QuoteForm = () => {
                     <div className="space-y-6">
                         <h2 className="text-3xl font-bold text-white mb-6">Étape 2: Service Souhaité</h2>
                         
-                        {/* Type de Service Principal (Select ou Radio) */}
+                        {/* Type de Service Principal */}
                         <div className="mb-8">
                             <label className="block text-sm text-brandLightGray mb-2 font-medium">Type de Service Principal <span className="text-brandRed">*</span></label>
                             <select name="serviceType" value={formData.serviceType} onChange={handleChange} required className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white appearance-none cursor-pointer">
@@ -121,7 +158,7 @@ const QuoteForm = () => {
                             </select>
                         </div>
 
-                        {/* Options Détaillées Basées sur le Service (Exemple pour PPF) */}
+                        {/* Options Détaillées Basées sur le Service */}
                         {formData.serviceType === 'ppf' && (
                             <div className="p-4 border border-zinc-700 rounded">
                                 <h3 className="text-xl text-white mb-3">Couverture PPF :</h3>
@@ -137,7 +174,7 @@ const QuoteForm = () => {
                                 </div>
                             </div>
                         )}
-                         {/* Ajoutez ici la logique pour 'teintage' et 'wrapping' */}
+                        {/* Vous pouvez ajouter d'autres conditions ici pour 'teintage' etc. */}
                     </div>
                 );
             case 3:
@@ -154,6 +191,10 @@ const QuoteForm = () => {
                             <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="votre.email@exemple.com" />
                         </div>
                         <div>
+                            <label htmlFor="phone" className="block text-sm text-brandLightGray mb-2 font-medium">Téléphone</label>
+                            <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="06..." />
+                        </div>
+                        <div>
                             <label htmlFor="notes" className="block text-sm text-brandLightGray mb-2 font-medium">Notes Supplémentaires (Kilométrage, État, etc.)</label>
                             <textarea id="notes" name="notes" rows="4" value={formData.notes} onChange={handleChange} className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="Toute information pertinente pour votre devis..."></textarea>
                         </div>
@@ -164,6 +205,7 @@ const QuoteForm = () => {
         }
     };
 
+    // Écran de Succès
     if (submissionSuccess) {
         return (
             <div className="text-center p-12 bg-green-900/40 border border-green-600 rounded-xl">
@@ -201,13 +243,21 @@ const QuoteForm = () => {
             <form onSubmit={handleSubmit} className="space-y-8">
                 {renderStep()}
 
+                {/* Affichage des Erreurs (Nouveau) */}
+                {errorMessage && (
+                    <div className="p-4 bg-red-900/50 text-red-200 border border-red-500 rounded">
+                        {errorMessage}
+                    </div>
+                )}
+
                 {/* Boutons de Navigation */}
                 <div className="flex justify-between pt-6 border-t border-zinc-700">
                     {step > 1 && (
                         <button 
                             type="button" 
                             onClick={prevStep} 
-                            className="text-brandLightGray hover:text-white font-semibold py-3 px-6 rounded transition-colors border border-zinc-700 hover:border-white"
+                            disabled={isSubmitting}
+                            className="text-brandLightGray hover:text-white font-semibold py-3 px-6 rounded transition-colors border border-zinc-700 hover:border-white disabled:opacity-50"
                         >
                             ← Précédent
                         </button>
