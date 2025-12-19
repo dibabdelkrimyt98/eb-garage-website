@@ -1,293 +1,209 @@
-// src/components/QuoteForm.jsx
-import React, { useState } from 'react';
-// --- IMPORTS NÉCESSAIRES POUR LE BACKEND ---
 import emailjs from '@emailjs/browser';
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from '../firebase'; // Assurez-vous que votre fichier firebase.js est bien configuré
+import React, { useState } from 'react';
+import { FaPalette, FaPlusCircle, FaShieldAlt, FaWindowMaximize } from 'react-icons/fa';
+import { db } from '../firebase';
 
-// Étapes de base du formulaire
 const TOTAL_STEPS = 3;
 
-const QuoteForm = () => {
-    // État pour gérer l'étape actuelle (1, 2, 3)
-    const [step, setStep] = useState(1);
-    
-    // État pour stocker toutes les données du devis
-    const [formData, setFormData] = useState({
-        // Étape 1: Véhicule
-        make: '', // Marque
-        model: '', // Modèle
-        year: '', // Année
-        // Étape 2: Service
-        serviceType: '', // Type de service principal
-        serviceDetails: [], // Détails spécifiques (ex: teinte 5%, PPF avant)
-        // Étape 3: Contact
-        name: '', // Nom complet
-        email: '', // Email
-        phone: '', // Téléphone (facultatif)
-        notes: '' // Notes supplémentaires
-    });
+const AVAILABLE_SERVICES = [
+    { id: 'teintage', label: 'Teintage de Vitres', icon: <FaWindowMaximize /> },
+    { id: 'ppf', label: 'Protection Peinture (PPF)', icon: <FaShieldAlt /> },
+    { id: 'wrapping', label: 'Wrapping / Covering', icon: <FaPalette /> },
+    { id: 'autre', label: 'Nettoyage / Autre', icon: <FaPlusCircle /> },
+];
 
+const QuoteForm = () => {
+    const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submissionSuccess, setSubmissionSuccess] = useState(false);
-    // Nouvel état pour gérer les erreurs d'envoi
     const [errorMessage, setErrorMessage] = useState('');
 
-    // Mettre à jour les données du formulaire
+    const [formData, setFormData] = useState({
+        make: '',
+        model: '',
+        year: '',
+        selectedServices: [], 
+        name: '',
+        email: '',
+        phone: '',
+        notes: ''
+    });
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Mettre à jour les détails de service (ex: cases à cocher ou radio)
-    const handleServiceChange = (e) => {
-        const { value, checked } = e.target;
-        if (checked) {
-            setFormData(prev => ({
-                ...prev,
-                serviceDetails: [...prev.serviceDetails, value]
-            }));
-        } else {
-            setFormData(prev => ({
-                ...prev,
-                serviceDetails: prev.serviceDetails.filter(detail => detail !== value)
-            }));
-        }
+    const toggleService = (serviceLabel) => {
+        setFormData(prev => {
+            const isSelected = prev.selectedServices.includes(serviceLabel);
+            if (isSelected) {
+                return {
+                    ...prev,
+                    selectedServices: prev.selectedServices.filter(s => s !== serviceLabel)
+                };
+            } else {
+                return {
+                    ...prev,
+                    selectedServices: [...prev.selectedServices, serviceLabel]
+                };
+            }
+        });
     };
 
-    // Fonctions de navigation entre les étapes
     const nextStep = () => {
-        // Validation simple avant de passer à l'étape suivante
         if (step === 1 && (!formData.make || !formData.model || !formData.year)) {
             alert("Veuillez remplir les informations du véhicule.");
             return;
         }
-        if (step === 2 && !formData.serviceType) {
-            alert("Veuillez sélectionner un type de service.");
+        if (step === 2 && formData.selectedServices.length === 0) {
+            alert("Veuillez sélectionner au moins un service.");
             return;
         }
-        
         setStep(prev => Math.min(prev + 1, TOTAL_STEPS));
     };
 
-    const prevStep = () => {
-        setStep(prev => Math.max(prev - 1, 1));
-    };
+    const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
-    // --- GÉRER LA SOUMISSION FINALE (LOGIQUE AJOUTÉE) ---
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Final validation for Step 3
+        if (!formData.name || !formData.email) {
+            alert("Le nom et l'email sont obligatoires.");
+            return;
+        }
+
         setIsSubmitting(true);
-        setErrorMessage(''); // Réinitialiser les erreurs
+        setErrorMessage('');
         
         try {
-            // 1. Enregistrer dans Firebase Firestore
             await addDoc(collection(db, "quotes"), {
                 ...formData,
                 createdAt: serverTimestamp(),
-                status: "nouveau" // Pour le tri dans votre admin
+                status: "nouveau"
             });
 
-            // 2. Préparer les paramètres pour l'email
             const templateParams = {
-                to_name: "Admin Garage", // Le nom qui apparaîtra dans l'email
+                to_name: "Admin EB Garage",
                 from_name: formData.name,
                 from_email: formData.email,
                 phone: formData.phone || "Non renseigné",
                 vehicle_info: `${formData.make} ${formData.model} (${formData.year})`,
-                service_type: formData.serviceType,
-                service_details: formData.serviceDetails.join(", "), // Convertir le tableau en texte lisible
+                service_type: formData.selectedServices.join(", "),
                 message: formData.notes
             };
 
-            // 3. Envoyer la notification via EmailJS
             await emailjs.send(
-                'service_tm4clgk',   // <-- REMPLACEZ CECI (Service ID EmailJS)
-                'template_okc7zya',  // <-- REMPLACEZ CECI (Template ID EmailJS)
+                'service_tm4clgk', 
+                'template_okc7zya', 
                 templateParams,
-                'HWo31ByS0ctsGNZvt'    // <-- REMPLACEZ CECI (Public Key EmailJS)
+                'HWo31ByS0ctsGNZvt'
             );
 
-            // 4. Succès
             setSubmissionSuccess(true);
-
         } catch (error) {
-            console.error("Erreur d'envoi:", error);
-            setErrorMessage("Une erreur est survenue lors de l'envoi. Veuillez vérifier votre connexion ou nous appeler directement.");
+            console.error(error);
+            setErrorMessage("Erreur lors de l'envoi. Veuillez réessayer.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    // Affichage des étapes individuelles (INCHANGÉ)
     const renderStep = () => {
         switch (step) {
             case 1:
                 return (
                     <div className="space-y-6">
-                        <h2 className="text-3xl font-bold text-white mb-6">Étape 1: Détails du Véhicule</h2>
-                        
-                        <div>
-                            <label htmlFor="make" className="block text-sm text-brandLightGray mb-2 font-medium">Marque <span className="text-brandRed">*</span></label>
-                            <input type="text" id="make" name="make" value={formData.make} onChange={handleChange} required className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="Ex: Porsche" />
+                        <h2 className="text-2xl font-bold text-white mb-6 uppercase border-l-4 border-brandRed pl-4">Véhicule</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" name="make" value={formData.make} onChange={handleChange} placeholder="Marque" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-4 text-white focus:border-brandRed outline-none" />
+                            <input type="text" name="model" value={formData.model} onChange={handleChange} placeholder="Modèle" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-4 text-white focus:border-brandRed outline-none" />
                         </div>
-                        <div>
-                            <label htmlFor="model" className="block text-sm text-brandLightGray mb-2 font-medium">Modèle <span className="text-brandRed">*</span></label>
-                            <input type="text" id="model" name="model" value={formData.model} onChange={handleChange} required className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="Ex: 911 GT3" />
-                        </div>
-                        <div>
-                            <label htmlFor="year" className="block text-sm text-brandLightGray mb-2 font-medium">Année <span className="text-brandRed">*</span></label>
-                            <input type="number" id="year" name="year" value={formData.year} onChange={handleChange} required className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="Ex: 2024" />
-                        </div>
+                        <input type="number" name="year" value={formData.year} onChange={handleChange} placeholder="Année" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-4 text-white focus:border-brandRed outline-none" />
                     </div>
                 );
             case 2:
                 return (
                     <div className="space-y-6">
-                        <h2 className="text-3xl font-bold text-white mb-6">Étape 2: Service Souhaité</h2>
-                        
-                        {/* Type de Service Principal */}
-                        <div className="mb-8">
-                            <label className="block text-sm text-brandLightGray mb-2 font-medium">Type de Service Principal <span className="text-brandRed">*</span></label>
-                            <select name="serviceType" value={formData.serviceType} onChange={handleChange} required className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white appearance-none cursor-pointer">
-                                <option value="">-- Choisir un Service --</option>
-                                <option value="teintage">Teintage de Vitres</option>
-                                <option value="ppf">Film de Protection Peinture (PPF)</option>
-                                <option value="wrapping">Wrapping/Covering</option>
-                                <option value="autre">Autre / Multiple</option>
-                            </select>
-                        </div>
-
-                        {/* Options Détaillées Basées sur le Service */}
-                        {formData.serviceType === 'ppf' && (
-                            <div className="p-4 border border-zinc-700 rounded">
-                                <h3 className="text-xl text-white mb-3">Couverture PPF :</h3>
-                                <div className="space-y-2 text-brandLightGray">
-                                    <label className="flex items-center space-x-2">
-                                        <input type="checkbox" name="serviceDetails" value="ppf_avant" checked={formData.serviceDetails.includes("ppf_avant")} onChange={handleServiceChange} className="form-checkbox text-brandRed bg-brandDark border-zinc-600 rounded" />
-                                        <span>Kit Avant Complet (Capot, Pare-chocs, Ailes)</span>
-                                    </label>
-                                    <label className="flex items-center space-x-2">
-                                        <input type="checkbox" name="serviceDetails" value="ppf_complet" checked={formData.serviceDetails.includes("ppf_complet")} onChange={handleServiceChange} className="form-checkbox text-brandRed bg-brandDark border-zinc-600 rounded" />
-                                        <span>Véhicule Complet (Full Body)</span>
-                                    </label>
+                        <h2 className="text-2xl font-bold text-white mb-2 uppercase border-l-4 border-brandRed pl-4">Services</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {AVAILABLE_SERVICES.map((service) => (
+                                <div 
+                                    key={service.id}
+                                    onClick={() => toggleService(service.label)}
+                                    className={`cursor-pointer p-6 rounded-xl border-2 transition-all flex items-center space-x-4 ${
+                                        formData.selectedServices.includes(service.label)
+                                        ? 'border-brandRed bg-brandRed/10 text-white shadow-[0_0_15px_rgba(220,38,38,0.2)]'
+                                        : 'border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:border-zinc-600'
+                                    }`}
+                                >
+                                    <span className="text-2xl">{service.icon}</span>
+                                    <span className="font-bold uppercase text-sm">{service.label}</span>
                                 </div>
-                            </div>
-                        )}
-                        {/* Vous pouvez ajouter d'autres conditions ici pour 'teintage' etc. */}
+                            ))}
+                        </div>
                     </div>
                 );
             case 3:
                 return (
                     <div className="space-y-6">
-                        <h2 className="text-3xl font-bold text-white mb-6">Étape 3: Vos Coordonnées</h2>
-                        
-                        <div>
-                            <label htmlFor="name" className="block text-sm text-brandLightGray mb-2 font-medium">Nom Complet <span className="text-brandRed">*</span></label>
-                            <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="Votre Nom" />
-                        </div>
-                        <div>
-                            <label htmlFor="email" className="block text-sm text-brandLightGray mb-2 font-medium">Email <span className="text-brandRed">*</span></label>
-                            <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="votre.email@exemple.com" />
-                        </div>
-                        <div>
-                            <label htmlFor="phone" className="block text-sm text-brandLightGray mb-2 font-medium">Téléphone</label>
-                            <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="06..." />
-                        </div>
-                        <div>
-                            <label htmlFor="notes" className="block text-sm text-brandLightGray mb-2 font-medium">Notes Supplémentaires (Kilométrage, État, etc.)</label>
-                            <textarea id="notes" name="notes" rows="4" value={formData.notes} onChange={handleChange} className="w-full bg-brandDark border border-zinc-800 rounded p-4 text-white placeholder-zinc-500" placeholder="Toute information pertinente pour votre devis..."></textarea>
-                        </div>
+                        <h2 className="text-2xl font-bold text-white mb-6 uppercase border-l-4 border-brandRed pl-4">Vos Coordonnées</h2>
+                        <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Nom Complet" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-4 text-white focus:border-brandRed outline-none" />
+                        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-4 text-white focus:border-brandRed outline-none" />
+                        <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Téléphone" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-4 text-white focus:border-brandRed outline-none" />
+                        <textarea name="notes" rows="3" value={formData.notes} onChange={handleChange} placeholder="Message / Précisions..." className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-4 text-white focus:border-brandRed outline-none resize-none"></textarea>
                     </div>
                 );
-            default:
-                return null;
+            default: return null;
         }
     };
 
-    // Écran de Succès
     if (submissionSuccess) {
         return (
-            <div className="text-center p-12 bg-green-900/40 border border-green-600 rounded-xl">
-                <h2 className="text-4xl text-white font-bold mb-4">Demande Envoyée avec Succès !</h2>
-                <p className="text-xl text-brandLightGray">
-                    Merci pour votre demande. Notre administration l'a bien reçue et traitera votre devis dans les 24-48 heures.
-                </p>
-                <a href="/" className="mt-8 inline-block bg-brandRed hover:bg-red-700 text-white font-bold px-6 py-3 rounded uppercase transition-colors">
-                    Retourner à l'Accueil
-                </a>
+            <div className="text-center py-20 bg-zinc-900/50 rounded-2xl border border-zinc-800">
+                <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✓</div>
+                <h2 className="text-3xl font-black text-white uppercase mb-4">Envoyé !</h2>
+                <button onClick={() => window.location.reload()} className="bg-brandRed text-white px-8 py-3 rounded-lg font-bold uppercase hover:bg-red-700 transition-all">Nouveau Devis</button>
             </div>
         );
     }
 
     return (
-        <div className="bg-brandGray p-6 md:p-10 rounded-xl shadow-2xl">
-            {/* Indicateur de Progression */}
-            <div className="flex justify-between items-center mb-10 text-brandLightGray">
+        <div className="bg-zinc-900/30 backdrop-blur-md p-8 rounded-2xl border border-zinc-800/50 shadow-2xl">
+            {/* PROGRESS BAR */}
+            <div className="flex mb-12 space-x-2">
                 {[1, 2, 3].map(i => (
-                    <div key={i} className="flex flex-col items-center w-1/3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold mb-1 transition-all duration-300 ${
-                            step >= i 
-                            ? 'bg-brandRed text-white' 
-                            : 'bg-zinc-700 text-zinc-400'
-                        }`}>
-                            {i}
-                        </div>
-                        <span className={`text-sm ${step === i ? 'text-white' : ''}`}>
-                            {i === 1 ? 'Véhicule' : i === 2 ? 'Service' : 'Contact'}
-                        </span>
-                    </div>
+                    <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${step >= i ? 'bg-brandRed' : 'bg-zinc-800'}`} />
                 ))}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-                {renderStep()}
+            <form onSubmit={handleSubmit} className="min-h-[350px] flex flex-col justify-between">
+                <div>
+                    {renderStep()}
+                </div>
 
-                {/* Affichage des Erreurs (Nouveau) */}
-                {errorMessage && (
-                    <div className="p-4 bg-red-900/50 text-red-200 border border-red-500 rounded">
-                        {errorMessage}
-                    </div>
-                )}
-
-                {/* Boutons de Navigation */}
-                <div className="flex justify-between pt-6 border-t border-zinc-700">
-                    {step > 1 && (
-                        <button 
-                            type="button" 
-                            onClick={prevStep} 
-                            disabled={isSubmitting}
-                            className="text-brandLightGray hover:text-white font-semibold py-3 px-6 rounded transition-colors border border-zinc-700 hover:border-white disabled:opacity-50"
-                        >
-                            ← Précédent
-                        </button>
-                    )}
+                <div className="flex justify-between items-center mt-12 pt-8 border-t border-zinc-800/50">
+                    {step > 1 ? (
+                        <button type="button" onClick={prevStep} className="text-zinc-500 hover:text-white font-bold uppercase text-xs transition-colors">Retour</button>
+                    ) : <div />}
                     
-                    {step < TOTAL_STEPS && (
+                    {step < TOTAL_STEPS ? (
                         <button 
                             type="button" 
                             onClick={nextStep} 
-                            className={`font-bold py-3 px-6 rounded uppercase transition-colors ${step === 1 ? 'ml-auto' : ''} ${
-                                formData.make && formData.model && formData.year 
-                                ? 'bg-brandRed hover:bg-red-700 text-white' 
-                                : 'bg-zinc-600 text-zinc-300 cursor-not-allowed'
-                            }`}
+                            className="bg-white text-black px-10 py-4 rounded-xl font-black uppercase text-xs hover:bg-brandRed hover:text-white transition-all"
                         >
-                            Suivant →
+                            Suivant
                         </button>
-                    )}
-
-                    {step === TOTAL_STEPS && (
+                    ) : (
                         <button 
                             type="submit" 
-                            disabled={isSubmitting}
-                            className={`font-bold py-3 px-6 rounded uppercase tracking-wider transition-all duration-300 shadow-lg ${
-                                isSubmitting 
-                                ? 'bg-zinc-600 text-zinc-300 cursor-not-allowed' 
-                                : 'bg-brandRed hover:bg-red-700 text-white'
-                            }`}
+                            disabled={isSubmitting} 
+                            className="bg-brandRed text-white px-10 py-4 rounded-xl font-black uppercase text-xs hover:bg-red-700 transition-all disabled:opacity-50"
                         >
-                            {isSubmitting ? 'Envoi du Devis...' : 'Soumettre le Devis'}
+                            {isSubmitting ? 'Envoi en cours...' : 'Soumettre le Devis'}
                         </button>
                     )}
                 </div>

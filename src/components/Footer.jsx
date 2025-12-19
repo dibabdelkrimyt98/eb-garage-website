@@ -24,7 +24,8 @@ const Footer = () => {
           </div>
            <div className="flex items-start space-x-3">
             <FaMapMarkerAlt className="text-brandRed mt-1" />
-            <span>Cité Ben Mokadem -Sidi Abdelkader-, Cité Ramoul en face la mosquée-,<br/> Blida, Algeria</span>
+            <span>Cité Ben Mokadem, Sidi Abdelkader,
+            Blida, Algérie</span>
           </div>
         </div>
 
