@@ -1,68 +1,78 @@
-// src/pages/PortfolioPage.jsx
-import React, { useEffect, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import React from 'react';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import PortfolioGallery from '../components/PortfolioGallery';
 
 function PortfolioPage() {
-    // 1. État pour stocker la position de défilement verticale
-    const [scrollPosition, setScrollPosition] = useState(0);
+  const { scrollY } = useScroll();
+  
+  // Smooth Parallax Effects using Framer Motion
+  const yRange = useTransform(scrollY, [0, 500], [0, 250]);
+  const opacityRange = useTransform(scrollY, [0, 300], [1, 0]);
+  
+  return (
+    <div className="min-h-screen bg-brandDark text-white">
+      <Navbar />
 
-    // 2. Fonction pour mettre à jour l'état de défilement
-    const handleScroll = () => {
-        setScrollPosition(window.scrollY);
-    };
+      {/* --- HERO SECTION --- */}
+      <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center overflow-hidden pt-20">
+        {/* Parallax Background */}
+        <motion.div 
+          style={{ y: yRange }}
+          className="absolute inset-0 z-0"
+        >
+          <div 
+            className="w-full h-full bg-cover bg-center"
+            // Ensure you have this image or change it
+            style={{ backgroundImage: "url('/assets/portfolio-hero.png')" }} 
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-brandDark/30 via-brandDark/60 to-brandDark" />
+        </motion.div>
 
-    // 3. Ajout de l'écouteur d'événement au montage du composant
-    useEffect(() => {
-        window.addEventListener('scroll', handleScroll);
-        // Nettoyage de l'écouteur d'événement au démontage
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
+        {/* Hero Content */}
+        <motion.div 
+          style={{ opacity: opacityRange }}
+          className="relative z-10 text-center px-6 max-w-4xl"
+        >
+          <span className="text-brandRed font-bold uppercase tracking-[0.3em] text-sm mb-4 block">
+            Excellence Visuelle
+          </span>
+          <h1 className="text-5xl md:text-8xl font-black uppercase leading-none mb-6">
+            Nos <span className="text-transparent stroke-text">Réalisations</span>
+          </h1>
+          <p className="text-zinc-300 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed">
+            Une galerie soigneusement sélectionnée montrant notre dévouement à une exécution sans faille.
+          </p>
+        </motion.div>
+      </section>
 
-    // 4. Calcul des styles dynamiques basés sur la position de défilement
-    // Nous limitons l'effet à une certaine distance (ex: 400px)
-    const opacityFactor = 1 - Math.min(scrollPosition / 400, 1);
-    const scaleFactor = 1 + Math.min(scrollPosition / 1500, 0.1); // Max 10% de zoom
+      {/* --- GALLERY SECTION --- */}
+      <PortfolioGallery />
 
-    return (
-        <div className="min-h-screen bg-brandDark font-sans">
-            <Navbar />
-
-            {/* --- PORTFOLIO HERO BANNER --- */}
-            <section 
-                className="relative h-[50vh] min-h-[350px] flex items-center bg-cover bg-center"
-                style={{ 
-                    backgroundImage: `linear-gradient(rgba(26, 26, 26, ${0.7 + (1 - opacityFactor) * 0.3}), rgba(26, 26, 26, ${0.7 + (1 - opacityFactor) * 0.3})), url('/assets/portfolio-hero.png')`,
-                    // Parallaxe simple : le fond bouge légèrement moins vite
-                    transform: `translateY(${scrollPosition * 0.4}px)`, 
-                }} 
-            >
-                {/* Conteneur pour l'effet de fondu et d'échelle sur le texte */}
-                <div 
-                    className="relative z-10 px-6 md:px-12 max-w-7xl mx-auto w-full transition-all duration-100 ease-out"
-                    style={{
-                        opacity: opacityFactor,
-                        transform: `scale(${scaleFactor})`,
-                    }}
-                >
-                    <h1 className="text-6xl md:text-8xl font-extrabold text-white leading-tight mb-4 uppercase">
-                        Nos Réalisations
-                    </h1>
-                    <p className="text-xl text-brandLightGray max-w-2xl">
-                        Une galerie soigneusement sélectionnée montrant notre dévouement à une exécution sans faille dans le teintage, le PPF et le wrapping.
-                    </p>
-                </div>
-            </section>
-
-            {/* --- PORTFOLIO GALLERY (Le composant principal) --- */}
-            <PortfolioGallery />
-
-            <Footer />
+      {/* --- CTA SECTION --- */}
+      <section className="py-20 border-t border-zinc-800 bg-zinc-900/50">
+        <div className="max-w-4xl mx-auto text-center px-6">
+          <h2 className="text-3xl md:text-4xl font-black uppercase mb-8">
+            Votre véhicule mérite d'être <span className="text-brandRed">ici.</span>
+          </h2>
+          <a href="/devis" className="inline-block bg-white text-black hover:bg-brandRed hover:text-white font-black uppercase text-sm px-10 py-4 rounded-full transition-all duration-300 shadow-xl hover:shadow-brandRed/25 transform hover:-translate-y-1">
+            Démarrer votre projet
+          </a>
         </div>
-    );
+      </section>
+
+      <Footer />
+      
+      {/* Stroke Text Style */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .stroke-text {
+          -webkit-text-stroke: 1px white;
+          color: transparent;
+        }
+      `}} />
+    </div>
+  );
 }
 
 export default PortfolioPage;

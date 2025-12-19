@@ -1,94 +1,108 @@
-// src/components/ServicesPresentation.jsx
+import { motion } from 'framer-motion';
 import React from 'react';
-import { FaCar, FaCaretRight, FaScroll, FaShieldAlt } from 'react-icons/fa';
+import { FaCar, FaScroll, FaShieldAlt } from 'react-icons/fa';
+import { Link } from 'react-router-dom'; // Required for the "Consultation" button
+import blueImg from '../assets/blue.jpg';
+import noireImg from '../assets/noire.jpg';
+import starImg from '../assets/star.jpg';
 
-// Définition des données des services traduites
 const detailedServices = [
     {
-        title: "Teintage de Vitres",
-        subtitle: "Protection UV & Amélioration Esthétique",
-        description: "Nous proposons une gamme de films de fenêtre en céramique et carbone haute performance qui bloquent 99 % des rayons UV nocifs et réduisent considérablement l'intrusion de chaleur. Choisissez parmi plusieurs teintes pour une intimité ultime et un look élégant et personnalisé. Comprend une garantie à vie contre le décollement ou les bulles.",
-        features: ["Films Céramique & Carbone", "Garantie à Vie", "Réduction de la Chaleur et de l'Éblouissement", "Options d'Intimité"],
-        icon: FaCar
+      title: "Teintage de Vitres",
+      subtitle: "Protection UV & Amélioration Esthétique",
+      description: "...",
+      features: ["Films Céramique & Carbone", "Garantie à Vie", "Réduction de Chaleur", "Intimité Totale"],
+      icon: FaCar,
+      img: noireImg // 2. USE THE IMPORTED VARIABLE HERE
     },
     {
-        title: "Film de Protection Peinture (PPF)",
-        subtitle: "Armure Invisible à Auto-Guérison",
-        description: "Le PPF est la défense ultime contre les dangers de la route. Notre film premium à auto-guérison est optiquement transparent, protégeant la peinture de votre véhicule contre les éclats de roche, les insectes, les débris routiers et les abrasions mineures. Nous proposons des kits pour l'avant complet, des wraps complets et des options de couverture personnalisées.",
-        features: ["Propriétés d'Auto-Guérison", "Finition Invisible", "Résistance aux Éclats de Roche", "Couverture Complète ou Partielle"],
-        icon: FaShieldAlt
+      title: "Protection Peinture (PPF)",
+      subtitle: "Armure Invisible à Auto-Guérison",
+      description: "...",
+      features: ["Technologie Auto-Guérison", "Finition Invisible", "Résistance Impact", "Protection UV Peinture"],
+      icon: FaShieldAlt,
+      img: blueImg // 2. USE THE IMPORTED VARIABLE HERE
     },
     {
-        title: "Wrapping de Véhicule",
-        subtitle: "Transformation Complète de Couleur",
-        description: "Que vous souhaitiez un covering publicitaire temporaire ou un changement de couleur complet pour un look unique, nos services de wrapping vinyle sont inégalés. Nous utilisons du vinyle de haute qualité pour une finition impeccable qui protège également la peinture OEM sous-jacente. Parfait pour l'esthétique personnalisée ou l'image de marque corporative.",
-        features: ["Changement de Couleur Complet", "Graphiques & Décalcomanies Personnalisés", "Finitions Mate, Satinée et Brillante", "Protection de la Peinture OEM"],
-        icon: FaScroll
+      title: "Wrapping Véhicule",
+      subtitle: "Transformation Complète & Style",
+      description: "...",
+      features: ["Finition Mate & Brillante", "Design Personnalisé", "Pose Sans Bulles", "Vinyle Premium 3M/Avery"],
+      icon: FaScroll,
+      img: starImg // 2. USE THE IMPORTED VARIABLE HERE
     }
 ];
 
+
 const ServicesPresentation = () => {
-    return (
-        <div className="py-16 md:py-24 bg-brandDark">
-            <div className="max-w-7xl mx-auto px-6 md:px-12">
+  return (
+    <section className="py-24 bg-brandDark">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="space-y-32">
+          {detailedServices.map((service, index) => (
+            <motion.div 
+              key={service.title}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8 }}
+              className={`flex flex-col md:flex-row gap-12 md:gap-24 items-center ${index % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}
+            >
+              {/* Text Side */}
+              <div className="md:w-1/2 space-y-6">
+                <div className="flex items-center gap-4">
+                  <service.icon className="text-brandRed text-4xl" />
+                  <div className="h-px flex-1 bg-gradient-to-r from-brandRed to-transparent" />
+                </div>
+                <h3 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter italic">
+                  {service.title}
+                </h3>
+                <p className="text-brandRed font-bold uppercase text-xs tracking-[0.3em]">{service.subtitle}</p>
+                <p className="text-zinc-400 leading-relaxed text-lg">
+                  {service.description}
+                </p>
                 
-                <h2 className="text-4xl md:text-5xl font-extrabold text-white uppercase text-center mb-16">
-                    Notre Gamme de Services Premium
-                </h2>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                  {service.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-3 text-zinc-200 text-sm font-bold uppercase tracking-tight">
+                      <div className="w-1.5 h-1.5 bg-brandRed rotate-45" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-                <div className="space-y-16">
-                    {detailedServices.map((service, index) => (
-                        <div 
-                            key={service.title} 
-                            // Alternating layout for visual interest
-                            className={`flex flex-col md:flex-row gap-10 md:gap-16 items-center ${index % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}
-                        >
-                            {/* Bloc Icône & Description */}
-                            <div className="md:w-1/2">
-                                <service.icon className="text-brandRed text-5xl mb-4" />
-                                <h3 className="text-4xl font-bold text-white mb-2 uppercase">{service.title}</h3>
-                                <p className="text-xl font-semibold text-brandLightGray mb-6">{service.subtitle}</p>
-                                <p className="text-brandLightGray mb-8 leading-relaxed">
-                                    {service.description}
-                                </p>
-                                
-                                {/* Liste des Caractéristiques */}
-                                <ul className="space-y-2">
-                                    {service.features.map((feature) => (
-                                        <li key={feature} className="flex items-center text-white">
-                                            <FaCaretRight className="text-brandRed mr-2" />
-                                            <span className='text-sm'>{feature}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            {/* Espace Réservé pour l'Image */}
-                            <div className="md:w-1/2 w-full h-80 bg-brandGray rounded-xl shadow-lg flex items-center justify-center relative overflow-hidden">
-                                <div className='text-brandLightGray text-lg font-bold z-10'>
-                                    [{service.title} Espace Réservé Image]
-                                </div>
-                                {/* Image de fond semi-transparente (ajustez le chemin au besoin) */}
-                                <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: `url(/assets/${service.title.toLowerCase().replace(/ /g, '-')}.png)` }}></div>
-                            </div>
-                        </div>
-                    ))}
+              {/* Image Side */}
+              <div className="md:w-1/2 w-full group relative">
+                <div className="absolute -inset-4 bg-brandRed/10 rounded-3xl blur-2xl group-hover:bg-brandRed/20 transition-all" />
+                <div className="relative h-[400px] rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl">
+                  <img src={service.img} alt={service.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 </div>
-
-                {/* Closing CTA */}
-                <div className="text-center mt-20">
-                    <p className="text-xl text-brandLightGray mb-6">
-                        Prêt à découvrir la différence EB GARAGE ?
-                    </p>
-                    <a href="/contact">
-                        <button className="bg-brandRed hover:bg-red-700 text-white text-lg uppercase font-bold px-10 py-4 rounded shadow-2xl transition-all duration-300">
-                            Obtenez Votre Consultation Gratuite
-                        </button>
-                    </a>
-                </div>
-            </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
-    );
+
+        {/* Closing CTA */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          className="mt-40 p-12 rounded-[3rem] bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 text-center relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-brandRed/10 blur-[100px]" />
+          <h2 className="text-3xl md:text-5xl font-black text-white uppercase mb-6 tracking-tighter italic">
+            Prêt pour la <span className="text-brandRed">Perfection</span> ?
+          </h2>
+          <Link to="/contact">
+            <button className="bg-brandRed hover:bg-white hover:text-brandRed text-white px-12 py-5 rounded-full font-black uppercase text-xs tracking-[0.2em] transition-all transform hover:scale-105 shadow-2xl shadow-brandRed/20">
+              Consultation Gratuite
+            </button>
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
 };
 
 export default ServicesPresentation;
